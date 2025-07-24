@@ -12,7 +12,7 @@ import PipelineShowcase from './components/sections/PipelineShowcase';
 import Contact from './components/sections/Contact';
 // import { useDarkMode } from './hooks/useDarkMode';
 import { useKeyboardNav } from './hooks/useKeyboardNav';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { AnimatePresence } from 'framer-motion';
 import { FaGit, FaCogs, FaVial, FaRocket, FaChartBar } from 'react-icons/fa';
@@ -134,16 +134,6 @@ const LoadingMessage = styled(motion.div)`
     font-size: 1.2rem;
     margin-bottom: 2rem;
   }
-`;
-
-const pulseAnimation = keyframes`
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-`;
-
-const fillAnimation = keyframes`
-  0% { background: var(--light-surface); }
-  100% { background: var(--success-green); }
 `;
 
 const App: React.FC = () => {

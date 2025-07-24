@@ -422,12 +422,10 @@ const PipelineShowcase: React.FC = () => {
   
   // Responsive left margin: centered on desktop, left-aligned on mobile
   const [leftMargin, setLeftMargin] = useState(250);
-  const [isMobile, setIsMobile] = useState(false);
   
   useEffect(() => {
     const updateMargin = () => {
       const mobile = window.innerWidth <= 768;
-      setIsMobile(mobile);
              if (mobile) {
         setLeftMargin(100); // Better mobile spacing
       } else {
@@ -695,35 +693,6 @@ const PipelineShowcase: React.FC = () => {
 
     timeoutRefs.current.push(finalTimeout);
   };
-
-  const [tooltip, setTooltip] = useState<{ visible: boolean; x: number; y: number; content: string }>({ visible: false, x: 0, y: 0, content: '' });
-
-  const getSmartTooltipPosition = (x: number, y: number) => {
-    const padding = 12;
-    const tooltipWidth = 220; // estimate, can be improved
-    const tooltipHeight = 40; // estimate, can be improved
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    let newX = x + 12;
-    let newY = y - 8;
-    if (newX + tooltipWidth > vw - padding) newX = vw - tooltipWidth - padding;
-    if (newY + tooltipHeight > vh - padding) newY = vh - tooltipHeight - padding;
-    if (newY < padding) newY = padding;
-    return { left: newX, top: newY };
-  };
-
-  const handleStageMouseOver = (e: React.MouseEvent, stage: PipelineStage) => {
-    setTooltip({
-      visible: true,
-      x: e.clientX,
-      y: e.clientY,
-      content: `${stage.name}: ${stage.subtitle}`,
-    });
-  };
-  const handleStageMouseMove = (e: React.MouseEvent) => {
-    setTooltip(t => ({ ...t, x: e.clientX, y: e.clientY }));
-  };
-  const handleStageMouseOut = () => setTooltip(t => ({ ...t, visible: false }));
 
   return (
     <ShowcaseSection id="pipeline">

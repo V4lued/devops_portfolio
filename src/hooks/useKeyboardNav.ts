@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 export const useKeyboardNav = () => {
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = () => {
       // Keyboard shortcuts can be added here in the future if needed
     };
 

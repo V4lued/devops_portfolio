@@ -183,20 +183,6 @@ const navLinks = [
   { href: '#contact', label: 'Contact' },
 ];
 
-function handleNavClick(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, href: string) {
-  const id = href.replace('#', '');
-  const el = document.getElementById(id);
-  if (el) {
-    e.preventDefault();
-    const header = document.querySelector('header');
-    const headerHeight = header ? (header as HTMLElement).offsetHeight : 0;
-    const rect = el.getBoundingClientRect();
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const offset = rect.top + scrollTop - headerHeight;
-    window.scrollTo({ top: offset, behavior: 'smooth' });
-  }
-}
-
 const Header: React.FC = () => {
   const [viewCount, setViewCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
