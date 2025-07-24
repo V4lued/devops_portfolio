@@ -86,10 +86,18 @@ const PipelineContainer = styled.div`
 const ReactFlowWrapper = styled.div`
   width: 100%;
   height: 100%;
+  min-height: 400px;
   position: relative;
   border-radius: 20px;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   
+  .react-flow {
+    min-height: 400px;
+    height: 100%;
+  }
   /* Hide ReactFlow attribution */
   .react-flow__attribution {
     display: none !important;
@@ -420,19 +428,29 @@ const PipelineShowcase: React.FC = () => {
   const stageYBottom = 250;
   const stageSpacing = 320;
   
+  const CONTAINER_WIDTH = 1200; // Should match max-width of ContentContainer
+  const numTopStages = 5;
+  const pipelineWidth = (numTopStages - 1) * stageSpacing;
+
   // Responsive left margin: centered on desktop, left-aligned on mobile
-  const [leftMargin, setLeftMargin] = useState(250);
-  
+  const [leftMargin, setLeftMargin] = useState(() => {
+    const mobile = window.innerWidth <= 768;
+    if (mobile) {
+      return 100;
+    } else {
+      return Math.max((CONTAINER_WIDTH - pipelineWidth) / 2, 0);
+    }
+  });
+
   useEffect(() => {
     const updateMargin = () => {
       const mobile = window.innerWidth <= 768;
-             if (mobile) {
-        setLeftMargin(100); // Better mobile spacing
+      if (mobile) {
+        setLeftMargin(100);
       } else {
-        setLeftMargin(200); // Better desktop centering with new spacing
+        setLeftMargin(Math.max((CONTAINER_WIDTH - pipelineWidth) / 2, 0));
       }
     };
-    
     updateMargin();
     window.addEventListener('resize', updateMargin);
     return () => window.removeEventListener('resize', updateMargin);
@@ -530,8 +548,8 @@ const PipelineShowcase: React.FC = () => {
   const resetPipeline = () => {
     timeoutRefs.current.forEach(timeout => clearTimeout(timeout));
     timeoutRefs.current = [];
-    setStages(prev => prev.map(stage => ({ ...stage, status: 'pending' })));
-    setConnectors(createConnectors(stages.map(stage => ({ ...stage, status: 'pending' }))));
+    setStages(initialStages);
+    setConnectors(createConnectors(initialStages));
     setCurrentStage(null);
     setCurrentMessage('Pipeline ready to run');
     setFailedStageIndex(null); // Clear failed stage index on reset
@@ -747,15 +765,17 @@ const PipelineShowcase: React.FC = () => {
         </StatusDisplay>
 
         <div style={{ textAlign: 'center' }}>
-          {(!isRunning && failedStageIndex !== null) ? (
-            <SimulateButton onClick={simulatePipeline}>
-              Retry
-            </SimulateButton>
-          ) : (
-            <SimulateButton onClick={simulatePipeline} disabled={isRunning}>
-              {isRunning ? 'Pipeline Running...' : 'Simulate Pipeline'}
-            </SimulateButton>
-          )}
+          <SimulateButton
+            onClick={simulatePipeline}
+            disabled={isRunning}
+            style={{ minWidth: 180 }}
+          >
+            {isRunning
+              ? 'Pipeline Running...'
+              : failedStageIndex !== null
+                ? 'Retry'
+                : 'Simulate Pipeline'}
+          </SimulateButton>
           {isRunning && (
             <StopButton onClick={resetPipeline}>
               Stop Pipeline
