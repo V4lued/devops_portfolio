@@ -394,7 +394,7 @@ const Contact: React.FC = () => {
 
   // Cooldown timer effect
   useEffect(() => {
-    let interval: number;
+    let interval: ReturnType<typeof setInterval>;
     if (isInCooldown && cooldownTime > 0) {
       interval = setInterval(() => {
         setCooldownTime((prev) => {
@@ -407,7 +407,7 @@ const Contact: React.FC = () => {
         });
       }, 1000);
     }
-    return () => clearInterval(interval);
+    return () => clearInterval(interval as unknown as number);
   }, [isInCooldown, cooldownTime]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

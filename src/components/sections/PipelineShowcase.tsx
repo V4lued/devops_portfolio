@@ -621,7 +621,7 @@ const PipelineShowcase: React.FC = () => {
       if (!stage) continue;
 
       // Start stage
-      const startTimeout = setTimeout(() => {
+      const startTimeout = window.setTimeout(() => {
         setStages(prev => prev.map(s =>
           s.id === flowItem.stage ? { ...s, status: 'running' } : s
         ));
@@ -629,10 +629,10 @@ const PipelineShowcase: React.FC = () => {
         setCurrentMessage(`Running: ${stage.name} - ${stage.subtitle}`);
       }, totalDelay * 1000);
 
-      timeoutRefs.current.push(startTimeout);
+      timeoutRefs.current.push(startTimeout as unknown as number);
 
       // Complete stage
-      const completeTimeout = setTimeout(() => {
+      const completeTimeout = window.setTimeout(() => {
         const success = Math.random() > 0.1; // 90% success rate
         setStages(prev => prev.map(s =>
           s.id === flowItem.stage ? { ...s, status: success ? 'success' : 'failed' } : s
@@ -679,19 +679,19 @@ const PipelineShowcase: React.FC = () => {
         }, 2000); // Match animation duration
       }, (totalDelay + stage.duration) * 1000);
 
-      timeoutRefs.current.push(completeTimeout);
+      timeoutRefs.current.push(completeTimeout as unknown as number);
       totalDelay += stage.duration + 2; // Add animation time
     }
 
     // Final completion
-    const finalTimeout = setTimeout(() => {
+    const finalTimeout = window.setTimeout(() => {
       setCurrentMessage('🎉 Pipeline completed successfully!');
       setCurrentStage(null);
       setIsRunning(false);
       setFailedStageIndex(null); // Clear failed stage index on success
     }, totalDelay * 1000);
 
-    timeoutRefs.current.push(finalTimeout);
+    timeoutRefs.current.push(finalTimeout as unknown as number);
   };
 
   return (
