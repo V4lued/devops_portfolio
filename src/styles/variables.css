@@ -1,0 +1,22 @@
+:root {
+  --dark-background: #1A222C;      /* Deeper navy for background */
+  --light-surface: #202A36;       /* Darker card/section surface */
+  --white: #FFFFFF;
+  --success-green: #2ECC40;       /* Success/CI */
+  --warning-yellow: #FFB800;      /* AWS yellow/orange */
+  --error-red: #FF4136;
+  --info-blue: #0073BB;           /* AWS blue accent */
+  --pipeline-cyan: #FF9900;       /* AWS orange for main accent */
+  --primary-text: #E5E8EC;        /* Slightly darker light gray for text */
+  --secondary-text: #B0B3B8;
+  --disabled-meta: #6C757D;
+  --shadow: rgba(0,0,0,0.2);
+}
+
+body {
+  background: var(--dark-background);
+  color: var(--primary-text);
+  font-family: 'Inter', 'Fira Code', 'JetBrains Mono', monospace, Arial, sans-serif;
+  min-height: 100vh;
+  transition: background-color 0.3s, color 0.3s;
+} 
