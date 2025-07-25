@@ -137,7 +137,11 @@ const LoadingMessage = styled(motion.div)`
 `;
 
 // Helper to render pipeline stages for the preloader
-function PipelineStages({ stages, currentStage }: { stages: any[]; currentStage: number }) {
+interface PipelineStagesProps {
+  stages: { icon: React.ComponentType; label: string; message: string }[];
+  currentStage: number;
+}
+function PipelineStages({ stages, currentStage }: PipelineStagesProps) {
   return (
     <>
       {stages.map((stage, index) => (

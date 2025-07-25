@@ -435,13 +435,32 @@ const nodeTypes = {
   pipelineStage: PipelineNode,
 };
 
-// Helper to handle stage completion
+// Helper types for refactoring
+interface FlowItem {
+  stage: string;
+  connector?: string;
+  branchConnector?: string;
+}
+
+interface HandleStageCompletionParams {
+  flowItem: FlowItem;
+  stage: PipelineStage;
+  setStages: React.Dispatch<React.SetStateAction<PipelineStage[]>>;
+  setCurrentMessage: React.Dispatch<React.SetStateAction<string>>;
+  setFailedStageIndex: React.Dispatch<React.SetStateAction<number | null>>;
+  setIsRunning: React.Dispatch<React.SetStateAction<boolean>>;
+  setConnectors: React.Dispatch<React.SetStateAction<PipelineConnector[]>>;
+  failureReasons: Record<string, string[]>;
+  timeoutRefs: React.MutableRefObject<Array<number | NodeJS.Timeout>>;
+  i: number;
+}
+
 function handleStageCompletion({
-  flowItem, stage, setStages, setCurrentStage, setCurrentMessage, setFailedStageIndex,
+  flowItem, stage, setStages, setCurrentMessage, setFailedStageIndex,
   setIsRunning, setConnectors, failureReasons, timeoutRefs, i
-}: any) {
+}: HandleStageCompletionParams) {
   return (success: boolean) => {
-    setStages((prev: any) => prev.map((s: any) =>
+    setStages((prev) => prev.map((s) =>
       s.id === flowItem.stage ? { ...s, status: success ? 'success' : 'failed' } : s
     ));
 
@@ -450,46 +469,52 @@ function handleStageCompletion({
       const reason = reasons[Math.floor(Math.random() * reasons.length)];
       setCurrentMessage(`❌ ${stage.name} failed: ${reason} Click "Simulate Pipeline" to retry.`);
       setFailedStageIndex(i);
-      timeoutRefs.current.forEach((t: any) => clearTimeout(t));
+      timeoutRefs.current.forEach((t) => clearTimeout(t));
       timeoutRefs.current = [];
       setIsRunning(false);
       return;
     }
 
     setFailedStageIndex(null);
-    setConnectors((prev: any) => prev.map((c: any) =>
+    setConnectors((prev) => prev.map((c) =>
       c.id === flowItem.connector ? { ...c, status: 'filling' } : c
     ));
   };
 }
 
-function handleBranchConnector(flowItem: any, setConnectors: any) {
+function handleBranchConnector(flowItem: FlowItem, setConnectors: React.Dispatch<React.SetStateAction<PipelineConnector[]>>) {
   if (flowItem.branchConnector) {
-    setConnectors((prev: any) => prev.map((c: any) =>
+    setConnectors((prev) => prev.map((c) =>
       c.id === flowItem.branchConnector ? { ...c, status: 'filling' } : c
     ));
     setTimeout(() => {
-      setConnectors((prev: any) => prev.map((c: any) =>
+      setConnectors((prev) => prev.map((c) =>
         c.id === flowItem.branchConnector ? { ...c, status: 'filled' } : c
       ));
     }, 2000);
   }
 }
 
-function handleConnectorFill(flowItem: any, setConnectors: any) {
+function handleConnectorFill(flowItem: FlowItem, setConnectors: React.Dispatch<React.SetStateAction<PipelineConnector[]>>) {
   setTimeout(() => {
-    setConnectors((prev: any) => prev.map((c: any) =>
+    setConnectors((prev) => prev.map((c) =>
       c.id === flowItem.connector ? { ...c, status: 'filled' } : c
     ));
   }, 2000);
 }
 
-function StatusDisplayBlock({ isRunning, currentStage, stages, currentMessage }: any) {
+interface StatusDisplayBlockProps {
+  isRunning: boolean;
+  currentStage: string | null;
+  stages: PipelineStage[];
+  currentMessage: string;
+}
+function StatusDisplayBlock({ isRunning, currentStage, stages, currentMessage }: StatusDisplayBlockProps) {
   return (
     <StatusDisplay>
       <h3>Pipeline Status</h3>
       {isRunning && currentStage && (
-        <p className="status-running">Running: {stages.find((s: any) => s.id === currentStage)?.name}</p>
+        <p className="status-running">Running: {stages.find((s) => s.id === currentStage)?.name}</p>
       )}
       {!isRunning && currentMessage && (
         <p className={currentMessage.includes('successfully') ? 'status-success' : 
@@ -504,7 +529,13 @@ function StatusDisplayBlock({ isRunning, currentStage, stages, currentMessage }:
   );
 }
 
-function PipelineActionButtons({ isRunning, simulatePipeline, resetPipeline, failedStageIndex }: any) {
+interface PipelineActionButtonsProps {
+  isRunning: boolean;
+  simulatePipeline: () => void;
+  resetPipeline: () => void;
+  failedStageIndex: number | null;
+}
+function PipelineActionButtons({ isRunning, simulatePipeline, resetPipeline, failedStageIndex }: PipelineActionButtonsProps) {
   return (
     <div style={{ textAlign: 'center' }}>
       <SimulateButton
@@ -729,7 +760,7 @@ const PipelineShowcase: React.FC = () => {
     }
     setIsRunning(true);
 
-    const pipelineFlow = [
+    const pipelineFlow: FlowItem[] = [
       { stage: 'source', connector: 'source-build' },
       { stage: 'build', connector: 'build-test' },
       { stage: 'test', connector: 'test-security', branchConnector: 'test-staging' },
@@ -765,7 +796,7 @@ const PipelineShowcase: React.FC = () => {
       const completeTimeout: number | NodeJS.Timeout = window.setTimeout(() => {
         const success = Math.random() > 0.1; // 90% success rate
         handleStageCompletion({
-          flowItem, stage, setStages, setCurrentStage, setCurrentMessage, setFailedStageIndex,
+          flowItem, stage, setStages, setCurrentMessage, setFailedStageIndex,
           setIsRunning, setConnectors, failureReasons, timeoutRefs, i
         })(success);
         handleBranchConnector(flowItem, setConnectors);

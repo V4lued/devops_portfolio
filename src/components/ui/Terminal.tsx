@@ -43,7 +43,15 @@ function BlinkingCursor({ isActive }: { isActive: boolean }) {
   );
 }
 
-// Typing effect logic
+interface TypingParams {
+  currentCommand: string;
+  setDisplayedText: React.Dispatch<React.SetStateAction<string>>;
+  setIsTyping?: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsBackspacing: React.Dispatch<React.SetStateAction<boolean>>;
+  setCurrentCommandIndex: React.Dispatch<React.SetStateAction<number>>;
+  commands: string[];
+}
+
 function startTyping({
   currentCommand,
   setDisplayedText,
@@ -51,16 +59,16 @@ function startTyping({
   setIsBackspacing,
   setCurrentCommandIndex,
   commands
-}: any) {
+}: TypingParams) {
   let i = 0;
-  setIsTyping(true);
+  if (setIsTyping) setIsTyping(true);
   const typeTimer = setInterval(() => {
     if (i < currentCommand.length) {
       setDisplayedText(currentCommand.slice(0, i + 1));
       i++;
     } else {
       clearInterval(typeTimer);
-      setIsTyping(false);
+      if (setIsTyping) setIsTyping(false);
       startBackspacing({
         currentCommand,
         setDisplayedText,
@@ -79,7 +87,7 @@ function startBackspacing({
   setIsBackspacing,
   setCurrentCommandIndex,
   commands
-}: any) {
+}: TypingParams) {
   setTimeout(() => {
     setIsBackspacing(true);
     let j = currentCommand.length;
