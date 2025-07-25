@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import './styles/globals.css';
 import './styles/variables.css';
 import './styles/pipeline.css';
@@ -144,32 +144,38 @@ const App: React.FC = () => {
   const [currentStage, setCurrentStage] = useState(0);
   const [message, setMessage] = useState('Initializing DevOps Environment...');
 
-  const stages = [
+  const stages = useMemo(() => [
     { icon: FaGit, label: 'Source', message: 'Connecting to repository...' },
     { icon: FaCogs, label: 'Build', message: 'Compiling application...' },
     { icon: FaVial, label: 'Test', message: 'Running test suites...' },
     { icon: FaRocket, label: 'Deploy', message: 'Deploying to staging...' },
     { icon: FaChartBar, label: 'Monitor', message: 'Setting up monitoring...' }
-  ];
+  ], []);
 
   useEffect(() => {
     if (!isLoading) return;
-    const stageTimer = setInterval(() => {
+    const stageTimer: ReturnType<typeof setInterval> = setInterval(() => {
       setCurrentStage(prev => {
         if (prev < stages.length - 1) {
           setMessage(stages[prev + 1].message);
           return prev + 1;
         } else {
           setMessage('Pipeline ready! 🚀');
-          setTimeout(() => {
+          const finishTimeout: ReturnType<typeof setTimeout> = setTimeout(() => {
             setIsLoading(false);
             sessionStorage.setItem('preloaderShown', 'true');
           }, 1000);
+          if (typeof finishTimeout === 'object' && finishTimeout !== null && 'unref' in finishTimeout && typeof finishTimeout.unref === 'function') {
+            finishTimeout.unref();
+          }
           clearInterval(stageTimer);
           return prev;
         }
       });
     }, 800);
+    if (typeof stageTimer === 'object' && stageTimer !== null && 'unref' in stageTimer && typeof stageTimer.unref === 'function') {
+      stageTimer.unref();
+    }
     return () => clearInterval(stageTimer);
   }, [isLoading, stages]);
 

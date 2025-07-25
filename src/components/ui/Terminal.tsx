@@ -46,8 +46,11 @@ const Terminal: React.FC = () => {
     setIsBackspacing(false);
 
     // Small delay before starting to type
-    const startDelay = setTimeout(() => {
+    const startDelay: ReturnType<typeof setTimeout> = setTimeout(() => {
       setIsTyping(true);
+      if (typeof startDelay === 'object' && startDelay !== null && 'unref' in startDelay && typeof startDelay.unref === 'function') {
+        startDelay.unref();
+      }
       
       typeTimer = setInterval(() => {
         if (i < currentCommand.length) {
@@ -61,6 +64,9 @@ const Terminal: React.FC = () => {
           backspaceDelay = setTimeout(() => {
             setIsBackspacing(true);
             let j = currentCommand.length;
+            if (typeof backspaceDelay === 'object' && backspaceDelay !== null && 'unref' in backspaceDelay && typeof backspaceDelay.unref === 'function') {
+              backspaceDelay.unref();
+            }
             
             backspaceTimer = setInterval(() => {
               if (j > 0) {
@@ -73,13 +79,31 @@ const Terminal: React.FC = () => {
                 // Wait 300ms before switching to next command
                 nextCommandTimer = setTimeout(() => {
                   setCurrentCommandIndex((prev) => (prev + 1) % commands.length);
+                  if (typeof nextCommandTimer === 'object' && nextCommandTimer !== null && 'unref' in nextCommandTimer && typeof nextCommandTimer.unref === 'function') {
+                    nextCommandTimer.unref();
+                  }
                 }, 300);
+                if (typeof nextCommandTimer === 'object' && nextCommandTimer !== null && 'unref' in nextCommandTimer && typeof nextCommandTimer.unref === 'function') {
+                  nextCommandTimer.unref();
+                }
               }
             }, 50); // Faster backspace speed
+            if (typeof backspaceTimer === 'object' && backspaceTimer !== null && 'unref' in backspaceTimer && typeof backspaceTimer.unref === 'function') {
+              backspaceTimer.unref();
+            }
           }, 2000);
+          if (typeof backspaceDelay === 'object' && backspaceDelay !== null && 'unref' in backspaceDelay && typeof backspaceDelay.unref === 'function') {
+            backspaceDelay.unref();
+          }
         }
       }, 75); // Smoother typing speed
+      if (typeof typeTimer === 'object' && typeTimer !== null && 'unref' in typeTimer && typeof typeTimer.unref === 'function') {
+        typeTimer.unref();
+      }
     }, 500); // 500ms delay before starting
+    if (typeof startDelay === 'object' && startDelay !== null && 'unref' in startDelay && typeof startDelay.unref === 'function') {
+      startDelay.unref();
+    }
 
     return () => {
       clearTimeout(startDelay);

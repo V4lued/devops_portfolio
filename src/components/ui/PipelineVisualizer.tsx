@@ -97,6 +97,20 @@ const VisualizerContainer = styled.div`
   }
 `;
 
+const StyledControls = styled(Controls)`
+  button {
+    border-radius: 8px !important;
+    /* Optional: add a little shadow and smooth transition for a modern look */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    transition: background 0.2s, box-shadow 0.2s;
+    &:hover {
+      background: var(--pipeline-cyan, #39cccc);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(57,204,204,0.15);
+    }
+  }
+`;
+
 // Define stable nodeTypes and edgeTypes outside component to prevent recreation
 const nodeTypes = {};
 const edgeTypes = {};
@@ -239,7 +253,7 @@ const PipelineVisualizer: React.FC = () => {
         maxZoom={1.5}
       >
         <Background />
-        <Controls showZoom={false} showFitView={true} showInteractive={false} />
+        <StyledControls showZoom={false} showFitView={true} showInteractive={false} />
       </ReactFlow>
     </VisualizerContainer>
   );

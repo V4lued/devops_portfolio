@@ -214,26 +214,34 @@ const StatusDisplay = styled.div`
 `;
 
 const SimulateButton = styled.button`
-  margin-top: 1.5rem;
-  padding: 0.75rem 1.5rem;
+  padding: 1.4rem 2.5rem;
   background: linear-gradient(135deg, var(--pipeline-cyan), var(--pipeline-cyan));
-  border: none;
   color: var(--dark-background);
-  border-radius: 4px;
+  border: none;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
-  font-size: 0.9rem;
-  
-  &:hover {
+  font-size: 1.1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  align-self: center;
+  min-width: 200px;
+  margin-top: 1.5rem;
+
+  &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(57, 204, 204, 0.3);
   }
-  
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    background: linear-gradient(135deg, #666, #666);
   }
 `;
 
@@ -241,8 +249,19 @@ const StopButton = styled(SimulateButton)`
   background: var(--error-red);
   margin-left: 1rem;
   
-  &:hover {
+  &:hover:not(:disabled) {
     background: #cc3333;
+    transform: translateY(-2px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #666;
   }
 `;
 
@@ -420,7 +439,7 @@ const PipelineShowcase: React.FC = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [currentStage, setCurrentStage] = useState<string | null>(null);
   const [currentMessage, setCurrentMessage] = useState('Pipeline ready to run');
-  const timeoutRefs = useRef<number[]>([]);
+  const timeoutRefs = useRef<Array<number | NodeJS.Timeout>>([]);
   const [failedStageIndex, setFailedStageIndex] = useState<number | null>(null);
 
   // Optimized layout: better spacing and positioning
@@ -454,7 +473,7 @@ const PipelineShowcase: React.FC = () => {
     updateMargin();
     window.addEventListener('resize', updateMargin);
     return () => window.removeEventListener('resize', updateMargin);
-  }, []);
+  }, [pipelineWidth]);
 
   // 1. Define initialStages at the top - recalculate when leftMargin changes
   const initialStages: PipelineStage[] = useMemo(() => [
@@ -480,7 +499,7 @@ const PipelineShowcase: React.FC = () => {
   }, [initialStages]);
 
   // Map stage IDs to their icons
-  const stageIcons: Record<string, IconType> = {
+  const stageIcons = useMemo<Record<string, IconType>>(() => ({
     source: FaGit,
     build: FaCogs,
     test: FaVial,
@@ -490,7 +509,7 @@ const PipelineShowcase: React.FC = () => {
     'e2e-test': FaRobot,
     'deploy-prod': FaRocket,
     monitor: FaChartBar,
-  };
+  }), []);
 
   // Convert stages to ReactFlow nodes
   const reactFlowNodes: Node<PipelineNodeData>[] = useMemo(() => 
@@ -504,7 +523,7 @@ const PipelineShowcase: React.FC = () => {
         stepNumber: index + 1
       },
       draggable: false // Prevent dragging to maintain exact positioning
-    })), [stages]
+    })), [stages, stageIcons]
   );
 
   // Convert connectors to ReactFlow edges with proper source/target mapping
@@ -639,18 +658,20 @@ const PipelineShowcase: React.FC = () => {
       if (!stage) continue;
 
       // Start stage
-      const startTimeout = window.setTimeout(() => {
+      const startTimeout: number | NodeJS.Timeout = window.setTimeout(() => {
         setStages(prev => prev.map(s =>
           s.id === flowItem.stage ? { ...s, status: 'running' } : s
         ));
         setCurrentStage(flowItem.stage);
         setCurrentMessage(`Running: ${stage.name} - ${stage.subtitle}`);
       }, totalDelay * 1000);
-
-      timeoutRefs.current.push(startTimeout as unknown as number);
+      if (typeof startTimeout === 'object' && startTimeout !== null && typeof (startTimeout as NodeJS.Timeout).unref === 'function') {
+        (startTimeout as NodeJS.Timeout).unref();
+      }
+      timeoutRefs.current.push(startTimeout);
 
       // Complete stage
-      const completeTimeout = window.setTimeout(() => {
+      const completeTimeout: number | NodeJS.Timeout = window.setTimeout(() => {
         const success = Math.random() > 0.1; // 90% success rate
         setStages(prev => prev.map(s =>
           s.id === flowItem.stage ? { ...s, status: success ? 'success' : 'failed' } : s
@@ -682,34 +703,44 @@ const PipelineShowcase: React.FC = () => {
             c.id === flowItem.branchConnector ? { ...c, status: 'filling' } : c
           ));
           // Complete branch connector after animation
-          setTimeout(() => {
+          const branchTimeout: number | NodeJS.Timeout = setTimeout(() => {
             setConnectors(prev => prev.map(c =>
               c.id === flowItem.branchConnector ? { ...c, status: 'filled' } : c
             ));
           }, 2000);
+          if (typeof branchTimeout === 'object' && branchTimeout !== null && typeof (branchTimeout as NodeJS.Timeout).unref === 'function') {
+            (branchTimeout as NodeJS.Timeout).unref();
+          }
         }
 
         // Complete connector after animation
-        setTimeout(() => {
+        const connectorTimeout: number | NodeJS.Timeout = setTimeout(() => {
           setConnectors(prev => prev.map(c =>
             c.id === flowItem.connector ? { ...c, status: 'filled' } : c
           ));
         }, 2000); // Match animation duration
+        if (typeof connectorTimeout === 'object' && connectorTimeout !== null && typeof (connectorTimeout as NodeJS.Timeout).unref === 'function') {
+          (connectorTimeout as NodeJS.Timeout).unref();
+        }
       }, (totalDelay + stage.duration) * 1000);
-
-      timeoutRefs.current.push(completeTimeout as unknown as number);
+      if (typeof completeTimeout === 'object' && completeTimeout !== null && typeof (completeTimeout as NodeJS.Timeout).unref === 'function') {
+        (completeTimeout as NodeJS.Timeout).unref();
+      }
+      timeoutRefs.current.push(completeTimeout);
       totalDelay += stage.duration + 2; // Add animation time
     }
 
     // Final completion
-    const finalTimeout = window.setTimeout(() => {
+    const finalTimeout: number | NodeJS.Timeout = window.setTimeout(() => {
       setCurrentMessage('🎉 Pipeline completed successfully!');
       setCurrentStage(null);
       setIsRunning(false);
       setFailedStageIndex(null); // Clear failed stage index on success
     }, totalDelay * 1000);
-
-    timeoutRefs.current.push(finalTimeout as unknown as number);
+    if (typeof finalTimeout === 'object' && finalTimeout !== null && typeof (finalTimeout as NodeJS.Timeout).unref === 'function') {
+      (finalTimeout as NodeJS.Timeout).unref();
+    }
+    timeoutRefs.current.push(finalTimeout);
   };
 
   return (

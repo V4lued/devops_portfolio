@@ -10,8 +10,7 @@ module.exports = {
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   testPathIgnorePatterns: [
-    '/node_modules/',
-    '\\.(cjs)$', // Only needed if you want to ignore .cjs test files
+    '/node_modules/'
   ],
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',

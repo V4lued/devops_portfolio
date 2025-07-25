@@ -148,14 +148,29 @@ const ProjectButton = styled.button`
   border: none;
   border-radius: 6px;
   font-weight: 600;
-  font-family: inherit;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  align-self: center;
 
-  &:hover {
+  &:hover:not(:disabled),
+  &:hover:not(:disabled):visited,
+  &:hover:not(:disabled):active {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(57, 204, 204, 0.3);
+    color: var(--dark-background) !important;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: linear-gradient(135deg, #666, #666);
   }
 `;
 
@@ -472,7 +487,7 @@ const Projects: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
               <ProjectButton 
                 as="a" 
-                href="https://github.com/your-username/your-portfolio-repo" 
+                href="https://github.com/V4lued/devops_portfolio" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 style={{ textDecoration: 'none' }}

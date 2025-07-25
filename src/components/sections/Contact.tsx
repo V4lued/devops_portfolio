@@ -406,6 +406,9 @@ const Contact: React.FC = () => {
           return prev - 1;
         });
       }, 1000);
+      if (typeof interval === 'object' && interval !== null && 'unref' in interval && typeof interval.unref === 'function') {
+        interval.unref();
+      }
     }
     return () => clearInterval(interval as unknown as number);
   }, [isInCooldown, cooldownTime]);
