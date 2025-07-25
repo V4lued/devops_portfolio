@@ -136,6 +136,51 @@ const LoadingMessage = styled(motion.div)`
   }
 `;
 
+// Helper to render pipeline stages for the preloader
+function PipelineStages({ stages, currentStage }: { stages: any[]; currentStage: number }) {
+  return (
+    <>
+      {stages.map((stage, index) => (
+        <React.Fragment key={stage.label}>
+          <PipelineStage>
+            <StageIcon
+              animate={{
+                borderColor: index <= currentStage ? 'var(--success-green)' : 'var(--disabled-meta)',
+                background: index <= currentStage ? 'var(--success-green)' : 'var(--light-surface)',
+                color: index <= currentStage ? 'var(--white)' : 'var(--disabled-meta)',
+                scale: index === currentStage ? [1, 1.1, 1] : 1,
+              }}
+              transition={{
+                duration: index === currentStage ? 0.5 : 0.3,
+                repeat: index === currentStage ? Infinity : 0,
+                repeatType: 'reverse'
+              }}
+            >
+              <stage.icon />
+            </StageIcon>
+            <StageLabel
+              animate={{
+                color: index <= currentStage ? 'var(--success-green)' : 'var(--text-secondary)'
+              }}
+              transition={{ duration: 0.3 }}
+            >
+              {stage.label}
+            </StageLabel>
+          </PipelineStage>
+          {index < stages.length - 1 && (
+            <PipelineConnector
+              animate={{
+                background: index < currentStage ? 'var(--success-green)' : 'var(--disabled-meta)'
+              }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+            />
+          )}
+        </React.Fragment>
+      ))}
+    </>
+  );
+}
+
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(() => {
     // Only show preloader if not shown in this session
@@ -284,46 +329,8 @@ const App: React.FC = () => {
             <LoadingMessage>
               {message}
             </LoadingMessage>
-            
             <PipelineContainer>
-              {stages.map((stage, index) => (
-                <React.Fragment key={stage.label}>
-                  <PipelineStage>
-                    <StageIcon
-                      animate={{
-                        borderColor: index <= currentStage ? 'var(--success-green)' : 'var(--disabled-meta)',
-                        background: index <= currentStage ? 'var(--success-green)' : 'var(--light-surface)',
-                        color: index <= currentStage ? 'var(--white)' : 'var(--disabled-meta)',
-                        scale: index === currentStage ? [1, 1.1, 1] : 1,
-                      }}
-                      transition={{
-                        duration: index === currentStage ? 0.5 : 0.3,
-                        repeat: index === currentStage ? Infinity : 0,
-                        repeatType: 'reverse'
-                      }}
-                    >
-                      <stage.icon />
-                    </StageIcon>
-                    <StageLabel
-                      animate={{
-                        color: index <= currentStage ? 'var(--success-green)' : 'var(--text-secondary)'
-                      }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      {stage.label}
-                    </StageLabel>
-                  </PipelineStage>
-                  
-                  {index < stages.length - 1 && (
-                    <PipelineConnector
-                      animate={{
-                        background: index < currentStage ? 'var(--success-green)' : 'var(--disabled-meta)'
-                      }}
-                      transition={{ duration: 0.3, delay: 0.2 }}
-                    />
-                  )}
-                </React.Fragment>
-              ))}
+              <PipelineStages stages={stages} currentStage={currentStage} />
             </PipelineContainer>
           </Preloader>
         )}

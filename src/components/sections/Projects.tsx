@@ -10,6 +10,9 @@ import ReactFlow, {
 } from 'reactflow';
 import type { Node, Edge, Connection } from 'reactflow';
 import { FaGithub } from 'react-icons/fa';
+import { FaReact, FaGit } from 'react-icons/fa';
+import { SiTypescript, SiJenkins, SiNetlify, SiStyledcomponents } from 'react-icons/si';
+import { FaProjectDiagram } from 'react-icons/fa';
 import 'reactflow/dist/style.css';
 
 const ProjectsSection = styled.section`
@@ -305,28 +308,53 @@ const TechStack = styled.div`
 const StackTitle = styled.h4`
   color: var(--pipeline-cyan);
   margin-bottom: 0.5rem;
+  font-size: 1.3rem;
 `;
 
 const TechList = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin-top: 0.5rem;
+  gap: 1.5rem 2.5rem;
+  margin-top: 2.5rem;
+  align-items: center;
 `;
 
 const TechBadge = styled.span`
-  background: rgba(57, 204, 204, 0.15);
-  color: var(--pipeline-cyan);
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  color: var(--primary-text);
+  font-size: 1rem;
   font-weight: 500;
-  border: 1px solid rgba(57, 204, 204, 0.2);
-  transition: all 0.2s ease;
-  
+  letter-spacing: 0.5px;
+  padding: 0.2rem 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  transition: color 0.2s;
+  position: relative;
+  cursor: pointer;
+  align-items: center;
+  display: inline-flex;
+  vertical-align: middle;
+
   &:hover {
-    background: rgba(57, 204, 204, 0.25);
-    transform: translateY(-1px);
+    color: var(--pipeline-cyan);
+  }
+
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0; right: 0; bottom: -2px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+    opacity: 0;
+    transform: scaleX(0);
+    transition: opacity 0.2s, transform 0.2s;
+  }
+
+  &:hover::after {
+    opacity: 1;
+    transform: scaleX(1);
   }
 `;
 
@@ -352,19 +380,13 @@ const initialNodes: Node[] = [
   {
     id: '4',
     position: { x: 250, y: 290 },
-    data: { label: 'Docker Build' },
+    data: { label: 'Netlify Build' },
     className: 'main',
   },
   {
     id: '5',
     position: { x: 250, y: 370 },
-    data: { label: 'Push to Registry' },
-    className: 'main',
-  },
-  {
-    id: '6',
-    position: { x: 250, y: 450 },
-    data: { label: 'K8s Deploy' },
+    data: { label: 'Netlify Deploy' },
     className: 'main',
   },
 ];
@@ -418,18 +440,6 @@ const initialEdges: Edge[] = [
       strokeDasharray: '5,5',
     },
   },
-  {
-    id: 'e5-6',
-    source: '5',
-    target: '6',
-    type: 'smoothstep',
-    animated: true,
-    style: { 
-      stroke: 'var(--pipeline-cyan)', 
-      strokeWidth: 3,
-      strokeDasharray: '5,5',
-    },
-  },
 ];
 
 // Define stable nodeTypes and edgeTypes outside component to prevent recreation
@@ -479,8 +489,8 @@ const Projects: React.FC = () => {
                 <h3>DevOps Portfolio Website</h3>
                 <p>Interactive CI/CD pipeline visualizations</p>
                 <p>Modern React & TypeScript architecture</p>
-                <p>Containerized deployment workflow</p>
-                <p>Real-time pipeline monitoring</p>
+                <p>Automated build and deployment to Netlify</p>
+                <p>Real-time pipeline status and monitoring</p>
               </PreviewContent>
             </WebsitePreview>
             
@@ -538,15 +548,13 @@ const Projects: React.FC = () => {
         <TechStack>
           <StackTitle>Technology Stack</StackTitle>
           <TechList>
-            <TechBadge>React</TechBadge>
-            <TechBadge>TypeScript</TechBadge>
-            <TechBadge>ReactFlow</TechBadge>
-            <TechBadge>Styled Components</TechBadge>
-            <TechBadge>Git</TechBadge>
-            <TechBadge>Jenkins</TechBadge>
-            <TechBadge>Docker</TechBadge>
-            <TechBadge>Kubernetes</TechBadge>
-            <TechBadge>Netlify</TechBadge>
+            <TechBadge><FaReact style={{marginRight: '0.5em'}} />React</TechBadge>
+            <TechBadge><SiTypescript style={{marginRight: '0.5em'}} />TypeScript</TechBadge>
+            <TechBadge><FaProjectDiagram style={{marginRight: '0.5em'}} />ReactFlow</TechBadge>
+            <TechBadge><SiStyledcomponents style={{marginRight: '0.5em'}} />Styled Components</TechBadge>
+            <TechBadge><FaGit style={{marginRight: '0.5em'}} />Git</TechBadge>
+            <TechBadge><SiJenkins style={{marginRight: '0.5em'}} />Jenkins</TechBadge>
+            <TechBadge><SiNetlify style={{marginRight: '0.5em'}} />Netlify</TechBadge>
           </TechList>
         </TechStack>
       </ProjectContainer>

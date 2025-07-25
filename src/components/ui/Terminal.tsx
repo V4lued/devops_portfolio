@@ -26,6 +26,78 @@ const commands = [
   'kubectl describe deployment'
 ];
 
+// Cursor component for blinking effect
+function BlinkingCursor({ isActive }: { isActive: boolean }) {
+  if (!isActive) return null;
+  return (
+    <motion.span 
+      animate={{ opacity: [0, 1, 0] }} 
+      transition={{ 
+        repeat: Infinity, 
+        duration: 0.8,
+        ease: "easeInOut"
+      }}
+    >
+      |
+    </motion.span>
+  );
+}
+
+// Typing effect logic
+function startTyping({
+  currentCommand,
+  setDisplayedText,
+  setIsTyping,
+  setIsBackspacing,
+  setCurrentCommandIndex,
+  commands
+}: any) {
+  let i = 0;
+  setIsTyping(true);
+  const typeTimer = setInterval(() => {
+    if (i < currentCommand.length) {
+      setDisplayedText(currentCommand.slice(0, i + 1));
+      i++;
+    } else {
+      clearInterval(typeTimer);
+      setIsTyping(false);
+      startBackspacing({
+        currentCommand,
+        setDisplayedText,
+        setIsBackspacing,
+        setCurrentCommandIndex,
+        commands
+      });
+    }
+  }, 75);
+  return typeTimer;
+}
+
+function startBackspacing({
+  currentCommand,
+  setDisplayedText,
+  setIsBackspacing,
+  setCurrentCommandIndex,
+  commands
+}: any) {
+  setTimeout(() => {
+    setIsBackspacing(true);
+    let j = currentCommand.length;
+    const backspaceTimer = setInterval(() => {
+      if (j > 0) {
+        j--;
+        setDisplayedText(currentCommand.slice(0, j));
+      } else {
+        clearInterval(backspaceTimer);
+        setIsBackspacing(false);
+        setTimeout(() => {
+          setCurrentCommandIndex((prev: number) => (prev + 1) % commands.length);
+        }, 300);
+      }
+    }, 50);
+  }, 2000);
+}
+
 const Terminal: React.FC = () => {
   const [currentCommandIndex, setCurrentCommandIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState('');
@@ -34,83 +106,21 @@ const Terminal: React.FC = () => {
 
   useEffect(() => {
     const currentCommand = commands[currentCommandIndex];
-    let i = 0;
-    let typeTimer: ReturnType<typeof setInterval>;
-    let backspaceTimer: ReturnType<typeof setInterval>;
-    let nextCommandTimer: ReturnType<typeof setTimeout>;
-    let backspaceDelay: ReturnType<typeof setTimeout>;
-    
-    // Reset state
     setDisplayedText('');
     setIsTyping(false);
     setIsBackspacing(false);
-
-    // Small delay before starting to type
-    const startDelay: ReturnType<typeof setTimeout> = setTimeout(() => {
-      setIsTyping(true);
-      if (typeof startDelay === 'object' && startDelay !== null && 'unref' in startDelay && typeof startDelay.unref === 'function') {
-        startDelay.unref();
-      }
-      
-      typeTimer = setInterval(() => {
-        if (i < currentCommand.length) {
-          setDisplayedText(currentCommand.slice(0, i + 1));
-          i++;
-        } else {
-          clearInterval(typeTimer);
-          setIsTyping(false);
-          
-          // Wait 2 seconds before starting backspace
-          backspaceDelay = setTimeout(() => {
-            setIsBackspacing(true);
-            let j = currentCommand.length;
-            if (typeof backspaceDelay === 'object' && backspaceDelay !== null && 'unref' in backspaceDelay && typeof backspaceDelay.unref === 'function') {
-              backspaceDelay.unref();
-            }
-            
-            backspaceTimer = setInterval(() => {
-              if (j > 0) {
-                j--;
-                setDisplayedText(currentCommand.slice(0, j));
-              } else {
-                clearInterval(backspaceTimer);
-                setIsBackspacing(false);
-                
-                // Wait 300ms before switching to next command
-                nextCommandTimer = setTimeout(() => {
-                  setCurrentCommandIndex((prev) => (prev + 1) % commands.length);
-                  if (typeof nextCommandTimer === 'object' && nextCommandTimer !== null && 'unref' in nextCommandTimer && typeof nextCommandTimer.unref === 'function') {
-                    nextCommandTimer.unref();
-                  }
-                }, 300);
-                if (typeof nextCommandTimer === 'object' && nextCommandTimer !== null && 'unref' in nextCommandTimer && typeof nextCommandTimer.unref === 'function') {
-                  nextCommandTimer.unref();
-                }
-              }
-            }, 50); // Faster backspace speed
-            if (typeof backspaceTimer === 'object' && backspaceTimer !== null && 'unref' in backspaceTimer && typeof backspaceTimer.unref === 'function') {
-              backspaceTimer.unref();
-            }
-          }, 2000);
-          if (typeof backspaceDelay === 'object' && backspaceDelay !== null && 'unref' in backspaceDelay && typeof backspaceDelay.unref === 'function') {
-            backspaceDelay.unref();
-          }
-        }
-      }, 75); // Smoother typing speed
-      if (typeof typeTimer === 'object' && typeTimer !== null && 'unref' in typeTimer && typeof typeTimer.unref === 'function') {
-        typeTimer.unref();
-      }
-    }, 500); // 500ms delay before starting
-    if (typeof startDelay === 'object' && startDelay !== null && 'unref' in startDelay && typeof startDelay.unref === 'function') {
-      startDelay.unref();
-    }
-
+    const startDelay = setTimeout(() => {
+      startTyping({
+        currentCommand,
+        setDisplayedText,
+        setIsTyping,
+        setIsBackspacing,
+        setCurrentCommandIndex,
+        commands
+      });
+    }, 500);
     return () => {
       clearTimeout(startDelay);
-      clearInterval(typeTimer);
-      clearInterval(backspaceTimer);
-      clearTimeout(nextCommandTimer);
-      clearTimeout(backspaceDelay);
     };
   }, [currentCommandIndex]);
 
@@ -122,18 +132,7 @@ const Terminal: React.FC = () => {
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
         $ {displayedText}
-        {(isTyping || isBackspacing) && (
-          <motion.span 
-            animate={{ opacity: [0, 1, 0] }} 
-            transition={{ 
-              repeat: Infinity, 
-              duration: isBackspacing ? 0.6 : 0.8,
-              ease: "easeInOut"
-            }}
-          >
-            |
-          </motion.span>
-        )}
+        <BlinkingCursor isActive={isTyping || isBackspacing} />
       </motion.div>
     </TerminalWindow>
   );
