@@ -11,6 +11,7 @@ module.exports = {
     '**/?(*.)+(spec|test).ts?(x)'
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+
   testPathIgnorePatterns: [
     '/node_modules/'
   ],

@@ -6,16 +6,8 @@ jest.mock('./src/styles/globals.css', () => ({}));
 jest.mock('./src/styles/variables.css', () => ({}));
 jest.mock('./src/styles/pipeline.css', () => ({}));
 
-// Mock import.meta for tests
-if (typeof global.import === 'undefined') {
-  global.import = {
-    meta: {
-      env: {
-        VITE_API_URL: 'http://localhost:3001'
-      }
-    }
-  };
-}
+// Mock environment variables for tests
+process.env.VITE_API_URL = 'http://localhost:3001';
 
 // Polyfill ResizeObserver for test environment
 if (typeof window !== 'undefined' && !window.ResizeObserver) {
