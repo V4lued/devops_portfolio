@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FaEye, FaBars, FaTimes } from 'react-icons/fa';
-import { useViewCount } from '../../hooks/useViewCount';
+import { FaBars, FaTimes } from 'react-icons/fa';
 // import ThemeToggle from '../ui/ThemeToggle';
 
 const Logo = styled.a`
@@ -30,31 +29,6 @@ const BlinkingCursor = styled.span`
       opacity: 0;
     }
   }
-`;
-
-const ViewCounter = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-left: 0.75rem;
-  color: var(--text-secondary);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.85rem;
-  
-  @media (max-width: 768px) {
-    margin-left: 0.5rem;
-    font-size: 0.75rem;
-  }
-`;
-
-const EyeIcon = styled(FaEye)`
-  color: var(--pipeline-cyan);
-  font-size: 0.9rem;
-`;
-
-const ViewNumber = styled.span`
-  color: var(--pipeline-cyan);
-  font-weight: 600;
 `;
 
 const LeftSection = styled.div`
@@ -185,7 +159,6 @@ const navLinks = [
 ];
 
 const Header: React.FC = () => {
-  const { viewCount, isLoading, error } = useViewCount();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {
@@ -218,13 +191,6 @@ const Header: React.FC = () => {
           SevOps
           <BlinkingCursor>|</BlinkingCursor>
         </Logo>
-        <ViewCounter>
-          <EyeIcon />
-          <ViewNumber>
-            {isLoading ? '...' : viewCount.toLocaleString()}
-            {error && <span style={{ fontSize: '0.7rem', opacity: 0.7 }}> (local)</span>}
-          </ViewNumber>
-        </ViewCounter>
       </LeftSection>
       
       <MobileMenuButton onClick={toggleMobileMenu}>

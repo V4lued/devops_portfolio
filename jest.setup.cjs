@@ -12,6 +12,14 @@ jest.mock('reactflow/dist/style.css', () => ({}), { virtual: true });
 // Mock environment variables for tests
 process.env.VITE_API_URL = 'http://localhost:3001';
 
+// Global fetch mock for tests
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve({ value: 0 }),
+  })
+);
+
 // Suppress console warnings in tests
 const originalWarn = console.warn;
 console.warn = (...args) => {
@@ -23,6 +31,24 @@ console.warn = (...args) => {
     return;
   }
   originalWarn(...args);
+};
+
+// Suppress console errors from useViewCount hook in tests
+const originalError = console.error;
+console.error = (...args) => {
+  // Suppress useViewCount error messages in tests
+  if (args.length > 0 && typeof args[0] === 'string' && 
+      (args[0].includes('Error incrementing view count') || 
+       args[0].includes('Error fetching view count') ||
+       args[0].includes('Error in checkAndIncrementView'))) {
+    return;
+  }
+  // Suppress React act() warnings
+  if (args.length > 0 && typeof args[0] === 'string' && 
+      args[0].includes('Warning: An update to TestComponent inside a test was not wrapped in act(...)')) {
+    return;
+  }
+  originalError(...args);
 };
 
 // Polyfill ResizeObserver for test environment
