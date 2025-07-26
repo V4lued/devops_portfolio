@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FaEye, FaBars, FaTimes } from 'react-icons/fa';
+import { useViewCount } from '../../hooks/useViewCount';
 // import ThemeToggle from '../ui/ThemeToggle';
 
 const Logo = styled.a`
@@ -184,28 +185,8 @@ const navLinks = [
 ];
 
 const Header: React.FC = () => {
-  const [viewCount, setViewCount] = useState(0);
+  const { viewCount, isLoading, error } = useViewCount();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    // Check if this is a new visit
-    const lastVisit = localStorage.getItem('portfolioLastVisit');
-    const currentTime = Date.now();
-    const visitThreshold = 60 * 60 * 1000; // 1 hour in milliseconds
-    
-    // Get current view count
-    const currentViews = parseInt(localStorage.getItem('portfolioViews') || '0', 10);
-    
-    // Check if it's a new visit (no previous visit or last visit was more than 1 hour ago)
-    if (!lastVisit || (currentTime - parseInt(lastVisit, 10)) > visitThreshold) {
-      const newViewCount = currentViews + 1;
-      localStorage.setItem('portfolioViews', newViewCount.toString());
-      localStorage.setItem('portfolioLastVisit', currentTime.toString());
-      setViewCount(newViewCount);
-    } else {
-      setViewCount(currentViews);
-    }
-  }, []);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -239,7 +220,10 @@ const Header: React.FC = () => {
         </Logo>
         <ViewCounter>
           <EyeIcon />
-          <ViewNumber>{viewCount.toLocaleString()}</ViewNumber>
+          <ViewNumber>
+            {isLoading ? '...' : viewCount.toLocaleString()}
+            {error && <span style={{ fontSize: '0.7rem', opacity: 0.7 }}> (local)</span>}
+          </ViewNumber>
         </ViewCounter>
       </LeftSection>
       
