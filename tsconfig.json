@@ -9,6 +9,5 @@
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" },
     { "path": "./tsconfig.test.json" }
-  ],
-  "include": ["src/types"]
+  ]
 }
