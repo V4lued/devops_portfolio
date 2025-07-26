@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { useViewCount } from './useViewCount';
 
 // Mock fetch
@@ -16,11 +16,13 @@ describe('useViewCount', () => {
     (fetch as jest.Mock).mockReset();
   });
 
-  it('should initialize with loading state', () => {
-    const { result } = renderHook(() => useViewCount());
-    expect(result.current.isLoading).toBe(true);
-    expect(result.current.viewCount).toBe(0);
-    expect(result.current.error).toBe(null);
+  it('should initialize with loading state', async () => {
+    await act(async () => {
+      const { result } = renderHook(() => useViewCount());
+      expect(result.current.isLoading).toBe(true);
+      expect(result.current.viewCount).toBe(0);
+      expect(result.current.error).toBe(null);
+    });
   });
 
   it('should handle successful API response', async () => {
@@ -30,7 +32,11 @@ describe('useViewCount', () => {
       json: async () => mockResponse,
     });
 
-    const { result } = renderHook(() => useViewCount());
+    let result: any;
+    await act(async () => {
+      const hookResult = renderHook(() => useViewCount());
+      result = hookResult.result;
+    });
 
     await waitFor(() => {
       expect((result.current as UseViewCountResult).isLoading).toBe(false);
@@ -43,7 +49,11 @@ describe('useViewCount', () => {
   it('should set error and viewCount=0 when API fails', async () => {
     (fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
 
-    const { result } = renderHook(() => useViewCount());
+    let result: any;
+    await act(async () => {
+      const hookResult = renderHook(() => useViewCount());
+      result = hookResult.result;
+    });
 
     await waitFor(() => {
       expect((result.current as UseViewCountResult).isLoading).toBe(false);
@@ -59,7 +69,11 @@ describe('useViewCount', () => {
       status: 500,
     });
 
-    const { result } = renderHook(() => useViewCount());
+    let result: any;
+    await act(async () => {
+      const hookResult = renderHook(() => useViewCount());
+      result = hookResult.result;
+    });
 
     await waitFor(() => {
       expect((result.current as UseViewCountResult).isLoading).toBe(false);
