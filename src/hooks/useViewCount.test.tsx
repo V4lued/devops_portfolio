@@ -1,4 +1,4 @@
-import { renderHook, waitFor, act } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { useViewCount } from './useViewCount';
 
 // Mock fetch
@@ -10,19 +10,33 @@ jest.setTimeout(15000);
 type UseViewCountResult = ReturnType<typeof useViewCount>;
 
 describe('useViewCount', () => {
+  let originalConsoleError: typeof console.error;
+
   beforeEach(() => {
     jest.clearAllMocks();
     // localStorage.clear(); // No longer needed
     (fetch as jest.Mock).mockReset();
+    
+    // Suppress React act() warnings for this test suite
+    originalConsoleError = console.error;
+    console.error = (...args: any[]) => {
+      const message = args.join(' ');
+      if (message.includes('Warning: An update to TestComponent inside a test was not wrapped in act(...)')) {
+        return;
+      }
+      originalConsoleError(...args);
+    };
   });
 
-  it('should initialize with loading state', async () => {
-    await act(async () => {
-      const { result } = renderHook(() => useViewCount());
-      expect(result.current.isLoading).toBe(true);
-      expect(result.current.viewCount).toBe(0);
-      expect(result.current.error).toBe(null);
-    });
+  afterEach(() => {
+    console.error = originalConsoleError;
+  });
+
+  it('should initialize with loading state', () => {
+    const { result } = renderHook(() => useViewCount());
+    expect(result.current.isLoading).toBe(true);
+    expect(result.current.viewCount).toBe(0);
+    expect(result.current.error).toBe(null);
   });
 
   it('should handle successful API response', async () => {
@@ -32,11 +46,7 @@ describe('useViewCount', () => {
       json: async () => mockResponse,
     });
 
-    let result: any;
-    await act(async () => {
-      const hookResult = renderHook(() => useViewCount());
-      result = hookResult.result;
-    });
+    const { result } = renderHook(() => useViewCount());
 
     await waitFor(() => {
       expect((result.current as UseViewCountResult).isLoading).toBe(false);
@@ -49,11 +59,7 @@ describe('useViewCount', () => {
   it('should set error and viewCount=0 when API fails', async () => {
     (fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
 
-    let result: any;
-    await act(async () => {
-      const hookResult = renderHook(() => useViewCount());
-      result = hookResult.result;
-    });
+    const { result } = renderHook(() => useViewCount());
 
     await waitFor(() => {
       expect((result.current as UseViewCountResult).isLoading).toBe(false);
@@ -69,11 +75,7 @@ describe('useViewCount', () => {
       status: 500,
     });
 
-    let result: any;
-    await act(async () => {
-      const hookResult = renderHook(() => useViewCount());
-      result = hookResult.result;
-    });
+    const { result } = renderHook(() => useViewCount());
 
     await waitFor(() => {
       expect((result.current as UseViewCountResult).isLoading).toBe(false);
