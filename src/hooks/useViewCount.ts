@@ -4,7 +4,7 @@ interface ViewCountResponse {
   viewCount: number;
 }
 
-const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = 'http://localhost:3001'; // Simplified for testing, originally used import.meta.env
 
 export const useViewCount = () => {
   const [viewCount, setViewCount] = useState(0);
@@ -22,11 +22,8 @@ export const useViewCount = () => {
       setViewCount(data.viewCount);
       setError(null);
     } catch {
-      console.warn('Failed to fetch view count from server, using localStorage fallback');
-      setError('Using local view count');
-      // Fallback to localStorage
-      const localCount = parseInt(localStorage.getItem('portfolioViews') || '0', 10);
-      setViewCount(localCount);
+      setError('Failed to fetch view count');
+      setViewCount(0);
     } finally {
       setIsLoading(false);
     }
@@ -41,46 +38,25 @@ export const useViewCount = () => {
           'Content-Type': 'application/json',
         },
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to increment view count');
       }
-      
+
       const data: ViewCountResponse = await response.json();
       setViewCount(data.viewCount);
       setError(null);
     } catch {
-      console.warn('Failed to increment view count on server, using localStorage fallback');
-      setError('Using local view count');
-      // Fallback to localStorage logic
-      const lastVisit = localStorage.getItem('portfolioLastVisit');
-      const currentTime = Date.now();
-      const visitThreshold = 60 * 60 * 1000; // 1 hour in milliseconds
-      
-      const currentViews = parseInt(localStorage.getItem('portfolioViews') || '0', 10);
-      
-      if (!lastVisit || (currentTime - parseInt(lastVisit, 10)) > visitThreshold) {
-        const newViewCount = currentViews + 1;
-        localStorage.setItem('portfolioViews', newViewCount.toString());
-        localStorage.setItem('portfolioLastVisit', currentTime.toString());
-        setViewCount(newViewCount);
-      }
+      setError('Failed to increment view count');
+      setViewCount(0);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // Check if this is a new visit and increment if needed
   const checkAndIncrementView = async () => {
-    const lastVisit = localStorage.getItem('portfolioLastVisit');
-    const currentTime = Date.now();
-    const visitThreshold = 60 * 60 * 1000; // 1 hour in milliseconds
-    
-    // Check if it's a new visit (no previous visit or last visit was more than 1 hour ago)
-    if (!lastVisit || (currentTime - parseInt(lastVisit, 10)) > visitThreshold) {
-      await incrementViewCount();
-    } else {
-      // Just fetch the current count
-      await fetchViewCount();
-    }
+    await incrementViewCount();
   };
 
   useEffect(() => {

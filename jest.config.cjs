@@ -21,6 +21,9 @@ module.exports = {
   ],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
   moduleNameMapper: {
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '^reactflow/dist/style.css$': 'identity-obj-proxy',
+    '^.*\\.css$': 'identity-obj-proxy',
+    'reactflow/dist/style.css': 'identity-obj-proxy'
   },
 }; 

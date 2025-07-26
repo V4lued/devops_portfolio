@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.app.json",
   "compilerOptions": {
+    "composite": true,
     "module": "CommonJS",
     "target": "ES2022",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
@@ -10,5 +11,5 @@
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node"
   },
-  "include": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/**/*.spec.ts", "src/**/*.spec.tsx"]
+  "include": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/**/*.spec.ts", "src/**/*.spec.tsx", "src/types"]
 } 

@@ -1,3 +1,10 @@
+import '@testing-library/jest-dom';
+
+// Mock the CSS imports that main.tsx uses
+jest.mock('./styles/globals.css', () => ({}));
+jest.mock('./styles/variables.css', () => ({}));
+jest.mock('./styles/pipeline.css', () => ({}));
+
 beforeAll(() => {
   const root = document.createElement('div');
   root.id = 'root';
