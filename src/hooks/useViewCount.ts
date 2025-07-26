@@ -4,7 +4,7 @@ interface ViewCountResponse {
   viewCount: number;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_BASE_URL = (import.meta?.env?.VITE_API_URL as string) || 'http://localhost:3001';
 
 export const useViewCount = () => {
   const [viewCount, setViewCount] = useState(0);
